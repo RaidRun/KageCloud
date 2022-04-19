@@ -1,0 +1,24 @@
+#!/bin/bash
+
+#Core Updates
+mv -f ~/KageCloudUpdates/cloud* ~/core/plugins/AdventurePluginCloud.jar
+curl -sSo "$CLOUD_FOLDER/core/kagecloud-core.jar" https://ci.syscy.de/job/Minecraft/job/KageCloud/lastSuccessfulBuild/artifact/core/build/libs/core-1.0.0-all.jar
+
+#proxy libraries
+mv -f ~/KageCloudUpdates/cloud* ~/core/plugins/AdventurePluginCloud.jar
+curl -sSo "$CLOUD_FOLDER/proxy/plugins/kagecloud-velocity.jar" https://ci.syscy.de/job/Minecraft/job/KageCloud/lastSuccessfulBuild/artifact/velocity/build/libs/velocity-1.0.0-all.jar
+
+#Wrapper Libraries
+mv -f ~/KageCloudUpdates/cloud* ~/core/plugins/AdventurePluginCloud.jar
+mv -f ~/KageCloudUpdates/cloud* ~/core/plugins/AdventurePluginCloud.jar
+curl -sSo "$CLOUD_FOLDER/wrapper/kagecloud-wrapper.jar" https://ci.syscy.de/job/Minecraft/job/KageCloud/lastSuccessfulBuild/artifact/wrapper/build/libs/wrapper-1.0.0-all.jar
+
+curl -Sso "$CLOUD_FOLDER/wrapper/sharedData/plugins/KageCloudSpigot.jar" https://ci.syscy.de/job/Minecraft/job/KageCloud/lastSuccessfulBuild/artifact/plugin/build/libs/plugin-1.0.0-all.jar
+
+#External libraries
+curl -sSu "$auth" -o "$CLOUD_FOLDER/wrapper/purpur-1.16.5.jar" https://ci.syscy.de/job/Minecraft/job/Purpur%20Clip%20Build/lastSuccessfulBuild/artifact/cache/patched_1.16.5.jar
+curl -sSo "$CLOUD_FOLDER/proxy/velocity-proxy.jar" https://versions.velocitypowered.com/download/3.0.1.jar
+
+curl localhost:8000/api/UpdateAdventurePlugin
+sudo systemctl restart KageCloud | now + 5 minutes
+rm -rf ~/adventurePluginUpdates
