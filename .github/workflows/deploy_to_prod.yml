@@ -44,7 +44,7 @@ jobs:
       - name: Jar
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: jar #-PprojVersion=${{ steps.versioning.outputs.version}}
+          arguments: shadowJar -PprojVersion=${{ steps.versioning.outputs.version}}
 
       - name: Test
         uses: gradle/gradle-build-action@v2
@@ -62,11 +62,72 @@ jobs:
         run: ssh-keyscan -H ${{ secrets.SSH_HOST_PROD }} >> ~/.ssh/known_hosts
         
       - name: Rsync new version of files
-        run: rsync */build/libs/*.jar ${{ secrets.SSH_PROD_USER }}:~/adventurePluginUpdates/
+        run: rsync */build/libs/*-all.jar ${{ secrets.SSH_PROD_USER }}:~/adventurePluginUpdates/
         
       - name: SSH into dev and Update plugins
         run: ssh ${{ secrets.SSH_PROD_USER }} < scripts/updateAdventurePlugin
 
+
+      - name: SSH into dev and Update plugins
+        run: ssh ${{ secrets.SSH_DEV_USER }} < scripts/updateAdventurePlugin
+
+      - name: Nexus Repo Publish Core
+        uses: sonatype-nexus-community/nexus-repo-github-action@master
+        with:
+          serverUrl: https://repo.syscy.de/
+          username: syscy-githubAction-ci
+          password: ${{ secrets.NEXUS_PASSWORD }}
+          format: maven2
+          repository: maven-snapshots
+          coordinates: groupId=de.syscy artifactId=kagecloud-core version=${{steps.versioning.outputs.version}}
+          assets: extension=jar
+          filename: core/build/libs/core-${{steps.versioning.outputs.version}}-all.jar
+      
+      - name: Nexus Repo Publish Core
+        uses: sonatype-nexus-community/nexus-repo-github-action@master
+        with:
+          serverUrl: https://repo.syscy.de/
+          username: syscy-githubAction-ci
+          password: ${{ secrets.NEXUS_PASSWORD }}
+          format: maven2
+          repository: maven-snapshots
+          coordinates: groupId=de.syscy artifactId=kagecloud-wrapper version=${{steps.versioning.outputs.version}}
+          assets: extension=jar
+          filename: wrapper/build/libs/wrapper-${{steps.versioning.outputs.version}}-all.jar
+
+      - name: Nexus Repo Publish Core
+        uses: sonatype-nexus-community/nexus-repo-github-action@master
+        with:
+          serverUrl: https://repo.syscy.de/
+          username: syscy-githubAction-ci
+          password: ${{ secrets.NEXUS_PASSWORD }}
+          format: maven2
+          repository: maven-snapshots
+          coordinates: groupId=de.syscy artifactId=kagecloud-plugin version=${{steps.versioning.outputs.version}}
+          assets: extension=jar
+          filename: plugin/build/libs/plugin-${{steps.versioning.outputs.version}}-all.jar
+
+      - name: Nexus Repo Publish Core
+        uses: sonatype-nexus-community/nexus-repo-github-action@master
+        with:
+          serverUrl: https://repo.syscy.de/
+          username: syscy-githubAction-ci
+          password: ${{ secrets.NEXUS_PASSWORD }}
+          format: maven2
+          repository: maven-snapshots
+          coordinates: groupId=de.syscy artifactId=kagecloud-velocity version=${{steps.versioning.outputs.version}}
+          assets: extension=jar
+          filename: velocity/build/libs/velocity-${{steps.versioning.outputs.version}}-all.jar
+
+      - name: "Build Changelog"
+        id: build_changelog
+        uses: mikepenz/release-changelog-builder-action@v2.9.0
+        with:
+          configuration: "workflow_configs/changelog_configuration_dev.json"
+          # Defines the owner of the repository to create the changelog for
+          owner: RaidRun
+          # Defines the token to use to execute the git API requests with, uses `env.GITHUB_TOKEN` by default
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Release
         # You may pin to the exact commit or the version.
@@ -75,11 +136,12 @@ jobs:
         with:
           # An optional name for the release. If this is omitted the tag will be used.
           name: ${{ steps.versioning.outputs.version}} 
-          prerelease: false
-          generateReleaseNotes: true
+          prerelease: true
+          generateReleaseNotes: false
+          body: ${{steps.build_changelog.outputs.changelog}}
           tag: ${{ steps.versioning.outputs.version}}
           # The Github token.
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "*/build/libs/*.jar"
+          artifacts: "*/build/libs/*-all.jar"
         
 
