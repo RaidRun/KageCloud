@@ -15,7 +15,7 @@ public class StartingServerData extends CloudServer {
 	private final @Getter Map<String, String> extraData;
 
 	public StartingServerData(UUID id, String templateName, Map<String, String> extraData) {
-		super(createConnection(id, templateName), templateName, null, false, templateName, templateName.toLowerCase().contains("lobby"));
+		super(createConnection(id, templateName), templateName, null, false, templateName, templateName.toLowerCase().contains("lobby"),id);
 		this.id = id;
 		this.extraData = extraData;
 	}
