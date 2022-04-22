@@ -9,11 +9,17 @@ buildscript {
     }
 }
 
+
+
 allprojects {
 	apply plugin: "java"
 	apply plugin: "com.github.johnrengelman.shadow"
 
-    version = "1.0.0"
+	if (project.hasProperty('projVersion')) {
+		project.version = project.projVersion
+	} else {
+		project.version = '1.0.0'
+	}
 
     repositories {
 		maven {
@@ -42,6 +48,14 @@ allprojects {
 		annotationProcessor "org.projectlombok:lombok:$lombokVersion"
 
 		implementation "com.esotericsoftware:kryonet:2.22.0-RC1"
+
+		testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+		testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+		testImplementation "org.mockito:mockito-core:3.+"
+	}
+
+	test {
+		useJUnitPlatform()
 	}
 }
 

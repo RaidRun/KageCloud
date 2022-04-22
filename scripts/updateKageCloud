@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#Core Updates
+mv -f ~/KageCloudUpdates/core* ~/core/kagecloud-core.jar
+
+#proxy libraries
+mv -f ~/KageCloudUpdates/velocity* ~/proxy/plugins/kagecloud-velocity.jar
+#Wrapper Libraries
+mv -f ~/KageCloudUpdates/wrapper* ~/wrapper/kagecloud-wrapper.jar
+
+curl localhost:8000/api/UpdateAdventurePlugin
+sudo systemctl restart KageCloud | now + 5 minutes
+rm -rf ~/KageCloudUpdates
