@@ -36,6 +36,9 @@ jobs:
           # Pattern to use when formatting output version
           format: "v${major}.${minor}.${patch}-rc${increment}"
       
+      - name: Make gradlew executeable
+        run: chmod +x gradlew
+
       - name: Set up JDK 14
         uses: actions/setup-java@v2
         with:
