@@ -1,4 +1,4 @@
-name: Deploy to Dev
+name: Deploy to dev
 on:
   push:
     branches:
@@ -79,7 +79,7 @@ jobs:
           format: maven2
           repository: maven-snapshots
           coordinates: groupId=de.syscy artifactId=kagecloud-core version=${{steps.versioning.outputs.version}}
-          assets: extension=jar
+          assets: extension=jar,generate-pom=true,packaging=jar
           filename: core/build/libs/core-${{steps.versioning.outputs.version}}-all.jar
       
       - name: Nexus Repo Publish Wrapper
@@ -91,7 +91,7 @@ jobs:
           format: maven2
           repository: maven-snapshots
           coordinates: groupId=de.syscy artifactId=kagecloud-wrapper version=${{steps.versioning.outputs.version}}
-          assets: extension=jar
+          assets: extension=jar,generate-pom=true,packaging=jar
           filename: wrapper/build/libs/wrapper-${{steps.versioning.outputs.version}}-all.jar
 
       - name: Nexus Repo Publish Plugin
@@ -103,7 +103,7 @@ jobs:
           format: maven2
           repository: maven-snapshots
           coordinates: groupId=de.syscy artifactId=kagecloud-plugin version=${{steps.versioning.outputs.version}}
-          assets: extension=jar
+          assets: extension=jar,generate-pom=true,packaging=jar
           filename: plugin/build/libs/plugin-${{steps.versioning.outputs.version}}-all.jar
 
       - name: Nexus Repo Publish Velocity
@@ -115,7 +115,7 @@ jobs:
           format: maven2
           repository: maven-snapshots
           coordinates: groupId=de.syscy artifactId=kagecloud-velocity version=${{steps.versioning.outputs.version}}
-          assets: extension=jar
+          assets: extension=jar,generate-pom=true,packaging=jar
           filename: velocity/build/libs/velocity-${{steps.versioning.outputs.version}}-all.jar
 
       - name: "Build Changelog"
