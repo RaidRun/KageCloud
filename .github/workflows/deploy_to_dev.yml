@@ -68,7 +68,7 @@ jobs:
         run: rsync */build/libs/*-all.jar ${{ secrets.SSH_DEV_USER }}:~/KageCloudUpdates/
         
       - name: SSH into dev and Update plugins
-        run: ssh ${{ secrets.SSH_DEV_USER }} < scripts/updateAdventurePlugin
+        run: ssh ${{ secrets.SSH_DEV_USER }} < scripts/updateKageCloud
 
       - name: Nexus Repo Publish Core
         uses: sonatype-nexus-community/nexus-repo-github-action@master
@@ -82,7 +82,7 @@ jobs:
           assets: extension=jar
           filename: core/build/libs/core-${{steps.versioning.outputs.version}}-all.jar
       
-      - name: Nexus Repo Publish Core
+      - name: Nexus Repo Publish Wrapper
         uses: sonatype-nexus-community/nexus-repo-github-action@master
         with:
           serverUrl: https://repo.syscy.de/
@@ -94,7 +94,7 @@ jobs:
           assets: extension=jar
           filename: wrapper/build/libs/wrapper-${{steps.versioning.outputs.version}}-all.jar
 
-      - name: Nexus Repo Publish Core
+      - name: Nexus Repo Publish Plugin
         uses: sonatype-nexus-community/nexus-repo-github-action@master
         with:
           serverUrl: https://repo.syscy.de/
@@ -106,7 +106,7 @@ jobs:
           assets: extension=jar
           filename: plugin/build/libs/plugin-${{steps.versioning.outputs.version}}-all.jar
 
-      - name: Nexus Repo Publish Core
+      - name: Nexus Repo Publish Velocity
         uses: sonatype-nexus-community/nexus-repo-github-action@master
         with:
           serverUrl: https://repo.syscy.de/
