@@ -65,7 +65,7 @@ jobs:
         run: ssh-keyscan -H ${{ secrets.SSH_DEV_HOST }} >> ~/.ssh/known_hosts
         
       - name: Rsync new version of files
-        run: rsync */build/libs/*-all.jar ${{ secrets.SSH_DEV_USER }}:~/adventurePluginUpdates/
+        run: rsync */build/libs/*-all.jar ${{ secrets.SSH_DEV_USER }}:~/KageCloudUpdates/
         
       - name: SSH into dev and Update plugins
         run: ssh ${{ secrets.SSH_DEV_USER }} < scripts/updateAdventurePlugin
