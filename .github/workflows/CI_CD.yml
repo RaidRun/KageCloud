@@ -1,13 +1,35 @@
-name: Deploy to Dev
+name: CI/CD
 on:
   push:
     branches:
+    - master
     - develop
 
 jobs:
   Deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Configuration for master branch
+        if: ${{ github.ref == 'refs/heads/master' }}
+        # Side note, I can run any Linux command here, not just 'echo'
+        run: |
+          echo "format=v${major}.${minor}.${patch}" >> $GITHUB_ENV
+          echo "SSH_PRIVATE_KEY=${{ secrets.PROD_SSH_PRIVATE_KEY }} " >> $GITHUB_ENV
+          echo "SSH_HOST=${{ secrets.PROD_SSH_HOST }} " >> $GITHUB_ENV
+          echo "SSH_USER=${{ secrets.PROD_SSH_USER }} " >> $GITHUB_ENV
+          echo "PRERELEASE=false" >> $GITHUB_ENV
+          echo "discord=production" >> $GITHUB_ENV
+          echo "changlog_config="workflow_configs/changelog_configuration_prod.json" >> $GITHUB_ENV
+      - name: Configuration for develop branch
+        if: ${{ github.ref == 'refs/heads/develop' }}
+        run: |
+          echo "format=v${major}.${minor}.${patch}-rc${increment}" >> $GITHUB_ENV
+          echo "SSH_PRIVATE_KEY=${{ secrets.DEV_SSH_PRIVATE_KEY }} " >> $GITHUB_ENV
+          echo "SSH_HOST=${{ secrets.DEV_SSH_HOST }} " >> $GITHUB_ENV
+          echo "SSH_USER=${{ secrets.DEV_SSH_USER }} " >> $GITHUB_ENV
+          echo "PRERELEASE=true" >> $GITHUB_ENV
+          echo "discord=development" >> $GITHUB_ENV
+          echo "changlog_config="workflow_configs/changelog_configuration_prod.json" >> $GITHUB_ENV
       - uses: deepakputhraya/action-branch-name@master
         with:
           regex: '([a-z])+\/([a-z])+' # Regex the branch should match. This example enforces grouping
@@ -34,7 +56,7 @@ jobs:
           # A string which, if present in a git commit, indicates that a change represents a minor (feature) change. Wrap with '/' to match using a regular expression.
           minor_pattern: "feat:"
           # Pattern to use when formatting output version
-          format: "v${major}.${minor}.${patch}-rc${increment}"
+          format: ${{env.format}}
       
       - name: Make gradlew executeable
         run: chmod +x gradlew
@@ -52,23 +74,23 @@ jobs:
       - name: Test
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: test
+          arguments: codeCoverageReport
           
 
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
         with:
-          key: ${{ secrets.SSH_DEV_PRIVATE_KEY }} 
+          key: ${{ env.SSH_PRIVATE_KEY }}
           known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
           
       - name: Adding Known Hosts
-        run: ssh-keyscan -H ${{ secrets.SSH_DEV_HOST }} >> ~/.ssh/known_hosts
+        run: ssh-keyscan -H ${{ env.SSH_HOST }} >> ~/.ssh/known_hosts
         
       - name: Rsync new version of files
-        run: rsync */build/libs/*-all.jar ${{ secrets.SSH_DEV_USER }}:~/adventurePluginUpdates/
+        run: rsync */build/libs/*-all.jar ${{ env.SSH_USER }}:~/KageCloudUpdates/
         
       - name: SSH into dev and Update plugins
-        run: ssh ${{ secrets.SSH_DEV_USER }} < scripts/updateAdventurePlugin
+        run: ssh ${{ env.SSH_USER }} < scripts/updateKageCloud
 
       - name: Nexus Repo Publish Core
         uses: sonatype-nexus-community/nexus-repo-github-action@master
@@ -79,10 +101,10 @@ jobs:
           format: maven2
           repository: maven-snapshots
           coordinates: groupId=de.syscy artifactId=kagecloud-core version=${{steps.versioning.outputs.version}}
-          assets: extension=jar
+          assets: extension=jar,generate-pom=true,packaging=jar
           filename: core/build/libs/core-${{steps.versioning.outputs.version}}-all.jar
       
-      - name: Nexus Repo Publish Core
+      - name: Nexus Repo Publish Wrapper
         uses: sonatype-nexus-community/nexus-repo-github-action@master
         with:
           serverUrl: https://repo.syscy.de/
@@ -91,10 +113,10 @@ jobs:
           format: maven2
           repository: maven-snapshots
           coordinates: groupId=de.syscy artifactId=kagecloud-wrapper version=${{steps.versioning.outputs.version}}
-          assets: extension=jar
+          assets: extension=jar,generate-pom=true,packaging=jar
           filename: wrapper/build/libs/wrapper-${{steps.versioning.outputs.version}}-all.jar
 
-      - name: Nexus Repo Publish Core
+      - name: Nexus Repo Publish Plugin
         uses: sonatype-nexus-community/nexus-repo-github-action@master
         with:
           serverUrl: https://repo.syscy.de/
@@ -103,10 +125,10 @@ jobs:
           format: maven2
           repository: maven-snapshots
           coordinates: groupId=de.syscy artifactId=kagecloud-plugin version=${{steps.versioning.outputs.version}}
-          assets: extension=jar
+          assets: extension=jar,generate-pom=true,packaging=jar
           filename: plugin/build/libs/plugin-${{steps.versioning.outputs.version}}-all.jar
 
-      - name: Nexus Repo Publish Core
+      - name: Nexus Repo Publish Velocity
         uses: sonatype-nexus-community/nexus-repo-github-action@master
         with:
           serverUrl: https://repo.syscy.de/
@@ -115,18 +137,19 @@ jobs:
           format: maven2
           repository: maven-snapshots
           coordinates: groupId=de.syscy artifactId=kagecloud-velocity version=${{steps.versioning.outputs.version}}
-          assets: extension=jar
+          assets: extension=jar,generate-pom=true,packaging=jar
           filename: velocity/build/libs/velocity-${{steps.versioning.outputs.version}}-all.jar
 
       - name: "Build Changelog"
         id: build_changelog
         uses: mikepenz/release-changelog-builder-action@v2.9.0
         with:
-          configuration: "workflow_configs/changelog_configuration_dev.json"
+          configuration: ${{ env.changelog_config }}
           # Defines the owner of the repository to create the changelog for
           owner: RaidRun
           # Defines the token to use to execute the git API requests with, uses `env.GITHUB_TOKEN` by default
           token: ${{ secrets.GITHUB_TOKEN }}
+          
 
       - name: Create Release
         # You may pin to the exact commit or the version.
@@ -135,12 +158,19 @@ jobs:
         with:
           # An optional name for the release. If this is omitted the tag will be used.
           name: ${{ steps.versioning.outputs.version}} 
-          prerelease: true
+          prerelease: ${{env.PRERELEASE}}
           generateReleaseNotes: false
           body: ${{steps.build_changelog.outputs.changelog}}
           tag: ${{ steps.versioning.outputs.version}}
           # The Github token.
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: "*/build/libs/*-all.jar"
+          
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed to ${{ secrets.discord }}.'
         
 
