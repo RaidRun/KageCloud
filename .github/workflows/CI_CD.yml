@@ -117,9 +117,9 @@ jobs:
           password: ${{ secrets.NEXUS_PASSWORD }}
           format: maven2
           repository: maven-snapshots
-          coordinates: groupId=de.syscy artifactId=kagecloud-core version=${{steps.versioning.outputs.version}}
+          coordinates: groupId=de.syscy artifactId=kagecloud-core version=${{secrets.VERSION}}
           assets: extension=jar
-          filename: core/build/libs/core-${{steps.versioning.outputs.version}}-all.jar
+          filename: core/build/libs/core-${{secrets.VERSION}}-all.jar
       
       - name: Nexus Repo Publish Wrapper
         uses: sonatype-nexus-community/nexus-repo-github-action@master
@@ -129,9 +129,9 @@ jobs:
           password: ${{ secrets.NEXUS_PASSWORD }}
           format: maven2
           repository: maven-snapshots
-          coordinates: groupId=de.syscy artifactId=kagecloud-wrapper version=${{steps.versioning.outputs.version}}
+          coordinates: groupId=de.syscy artifactId=kagecloud-wrapper version=${{secrets.VERSION}}
           assets: extension=jar
-          filename: wrapper/build/libs/wrapper-${{steps.versioning.outputs.version}}-all.jar
+          filename: wrapper/build/libs/wrapper-${{secrets.VERSION}}-all.jar
 
       - name: Nexus Repo Publish Plugin
         uses: sonatype-nexus-community/nexus-repo-github-action@master
@@ -141,9 +141,9 @@ jobs:
           password: ${{ secrets.NEXUS_PASSWORD }}
           format: maven2
           repository: maven-snapshots
-          coordinates: groupId=de.syscy artifactId=kagecloud-plugin version=${{steps.versioning.outputs.version}}
+          coordinates: groupId=de.syscy artifactId=kagecloud-plugin version=${{secrets.VERSION}}
           assets: extension=jar
-          filename: plugin/build/libs/plugin-${{steps.versioning.outputs.version}}-all.jar
+          filename: plugin/build/libs/plugin-${{secrets.VERSION}}-all.jar
 
       - name: Nexus Repo Publish Velocity
         uses: sonatype-nexus-community/nexus-repo-github-action@master
@@ -153,9 +153,9 @@ jobs:
           password: ${{ secrets.NEXUS_PASSWORD }}
           format: maven2
           repository: maven-snapshots
-          coordinates: groupId=de.syscy artifactId=kagecloud-velocity version=${{steps.versioning.outputs.version}}
+          coordinates: groupId=de.syscy artifactId=kagecloud-velocity version=${{secrets.VERSION}}
           assets: extension=jar
-          filename: velocity/build/libs/velocity-${{steps.versioning.outputs.version}}-all.jar
+          filename: velocity/build/libs/velocity-${{secrets.VERSION}}-all.jar
 
       - name: "Build Changelog"
         id: build_changelog
