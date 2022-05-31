@@ -80,7 +80,7 @@ jobs:
       - name: Jar
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: shadowJar -PprojVersion=${{ steps.versioning.outputs.version}}
+          arguments: shadowJar -PprojVersion=${{ env.VERSION}}
 
       - name: Test
         uses: gradle/gradle-build-action@v2
