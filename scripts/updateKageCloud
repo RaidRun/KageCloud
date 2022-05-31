@@ -9,5 +9,5 @@ mv -f ~/KageCloudUpdates/velocity* ~/proxy/plugins/kagecloud-velocity.jar
 mv -f ~/KageCloudUpdates/wrapper* ~/wrapper/kagecloud-wrapper.jar
 
 curl localhost:8000/api/UpdateAdventurePlugin
-sudo systemctl restart kagecloud | at now + 5 minutes
+echo "sudo systemctl restart kagecloud" | at now + 5 minutes
 rm -rf ~/KageCloudUpdates

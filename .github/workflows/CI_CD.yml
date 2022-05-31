@@ -32,6 +32,7 @@ jobs:
           minor_pattern: "feat:"
           # Pattern to use when formatting output version
           format: "v${major}.${minor}.${patch}-rc${increment}"
+          search_commit_body: true
 
       - name: Git Semantic Version
         if: ${{ github.ref == 'refs/heads/master' }}
@@ -48,6 +49,7 @@ jobs:
           minor_pattern: "feat:"
           # Pattern to use when formatting output version
           format: "v${major}.${minor}.${patch}"
+          search_commit_body: true
 
       - name: Configuration for master branch
         if: ${{ github.ref == 'refs/heads/master' }}
@@ -117,9 +119,10 @@ jobs:
           password: ${{ secrets.NEXUS_PASSWORD }}
           format: maven2
           repository: maven-snapshots
-          coordinates: groupId=de.syscy artifactId=kagecloud-core version=${{steps.versioning.outputs.version}}
+          coordinates: groupId=de.syscy artifactId=kagecloud-core version=${{env.VERSION}}
           assets: extension=jar
-          filename: core/build/libs/core-${{steps.versioning.outputs.version}}-all.jar
+          filename: core/build/libs/core-${{env.VERSION}}-all.jar
+
       
       - name: Nexus Repo Publish Wrapper
         uses: sonatype-nexus-community/nexus-repo-github-action@master
@@ -129,9 +132,10 @@ jobs:
           password: ${{ secrets.NEXUS_PASSWORD }}
           format: maven2
           repository: maven-snapshots
-          coordinates: groupId=de.syscy artifactId=kagecloud-wrapper version=${{steps.versioning.outputs.version}}
+          coordinates: groupId=de.syscy artifactId=kagecloud-wrapper version=${{env.VERSION}}
           assets: extension=jar
-          filename: wrapper/build/libs/wrapper-${{steps.versioning.outputs.version}}-all.jar
+          filename: wrapper/build/libs/wrapper-${{env.VERSION}}-all.jar
+
 
       - name: Nexus Repo Publish Plugin
         uses: sonatype-nexus-community/nexus-repo-github-action@master
@@ -141,9 +145,9 @@ jobs:
           password: ${{ secrets.NEXUS_PASSWORD }}
           format: maven2
           repository: maven-snapshots
-          coordinates: groupId=de.syscy artifactId=kagecloud-plugin version=${{steps.versioning.outputs.version}}
+          coordinates: groupId=de.syscy artifactId=kagecloud-plugin version=${{env.VERSION}}
           assets: extension=jar
-          filename: plugin/build/libs/plugin-${{steps.versioning.outputs.version}}-all.jar
+          filename: plugin/build/libs/plugin-${{env.VERSION}}-all.jar
 
       - name: Nexus Repo Publish Velocity
         uses: sonatype-nexus-community/nexus-repo-github-action@master
@@ -153,9 +157,9 @@ jobs:
           password: ${{ secrets.NEXUS_PASSWORD }}
           format: maven2
           repository: maven-snapshots
-          coordinates: groupId=de.syscy artifactId=kagecloud-velocity version=${{steps.versioning.outputs.version}}
+          coordinates: groupId=de.syscy artifactId=kagecloud-velocity version=${{env.VERSION}}
           assets: extension=jar
-          filename: velocity/build/libs/velocity-${{steps.versioning.outputs.version}}-all.jar
+          filename: velocity/build/libs/velocity-${{env.VERSION}}-all.jar
 
       - name: "Build Changelog"
         id: build_changelog
@@ -174,11 +178,11 @@ jobs:
         uses: ncipollo/release-action@v1.9.0
         with:
           # An optional name for the release. If this is omitted the tag will be used.
-          name: ${{ steps.versioning.outputs.version}} 
+          name: ${{ env.VERSION}}
           prerelease: ${{env.PRERELEASE}}
           generateReleaseNotes: false
           body: ${{steps.build_changelog.outputs.changelog}}
-          tag: ${{ steps.versioning.outputs.version}}
+          tag: ${{ env.VERSION}}
           # The Github token.
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: "*/build/libs/*-all.jar"
