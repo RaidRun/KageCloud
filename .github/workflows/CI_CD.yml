@@ -122,6 +122,7 @@ jobs:
           coordinates: groupId=de.syscy artifactId=kagecloud-core version=${{env.VERSION}}
           assets: extension=jar
           filename: core/build/libs/core-${{env.VERSION}}-all.jar
+
       
       - name: Nexus Repo Publish Wrapper
         uses: sonatype-nexus-community/nexus-repo-github-action@master
@@ -134,6 +135,7 @@ jobs:
           coordinates: groupId=de.syscy artifactId=kagecloud-wrapper version=${{env.VERSION}}
           assets: extension=jar
           filename: wrapper/build/libs/wrapper-${{env.VERSION}}-all.jar
+
 
       - name: Nexus Repo Publish Plugin
         uses: sonatype-nexus-community/nexus-repo-github-action@master
