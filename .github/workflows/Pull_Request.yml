@@ -46,14 +46,3 @@ jobs:
           min-coverage-overall: 0
           min-coverage-changed-files: 60
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          directory:  ${{ github.workspace }}/build/reports/jacoco/codeCoverageReport/
-          env_vars: JAVA
-          fail_ci_if_error: true
-          files: ${{ github.workspace }}/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml
-          flags: unittests
-          name: codecov-umbrella
-          path_to_write_report: ./coverage/codecov_report.txt
-          verbose: true
