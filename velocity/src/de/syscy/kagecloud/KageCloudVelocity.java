@@ -44,8 +44,8 @@ import java.util.stream.Collectors;
 
 @Plugin(id = "kagecloud-velocity", name = "KageCloud Velocity", version = "1.0", description = "KageCloud Proxy plugin", authors = { "Kage0x3B" })
 public class KageCloudVelocity implements ICloudNode {
-	private @Getter UUID nodeId = UUID.randomUUID();
-	private @Getter String nodeName = "bungee-" + nodeId;
+	private final @Getter UUID nodeId = UUID.randomUUID();
+	private final @Getter String nodeName = "bungee-" + nodeId;
 
 	@Inject private @Getter ProxyServer proxy;
 	@Inject private @Getter Logger logger;
@@ -59,19 +59,19 @@ public class KageCloudVelocity implements ICloudNode {
 	private @Getter boolean shutdown;
 	private @Getter String credentials;
 
-	private @Getter Map<UUID, CloudServerInfo> servers = new HashMap<>();
-	private @Getter Map<ServerInfo, CloudServerInfo> serverLookup = new HashMap<>();
+	private final @Getter Map<UUID, CloudServerInfo> servers = new HashMap<>();
+	private final @Getter Map<ServerInfo, CloudServerInfo> serverLookup = new HashMap<>();
 
-	private Map<String, ICloudPluginDataListener> pluginDataListeners = new HashMap<>();
+	private final Map<String, ICloudPluginDataListener> pluginDataListeners = new HashMap<>();
 
 	private @Getter CloudListener mainListener;
 	private @Getter PingListener pingListener;
 
 	@Subscribe
 	public void onProxyInitialize(ProxyInitializeEvent event) {
-		KageCloud.cloudNode = this;
-		KageCloud.logger = getLogger();
-		KageCloud.dataFolder = dataFolder = dataFolderPath.toFile();
+		KageCloudVel.cloudNode = this;
+		KageCloudVel.logger = getLogger();
+		KageCloudVel.dataFolder = dataFolder = dataFolderPath.toFile();
 		dataFolder.mkdirs();
 
 		configFile = new File(getDataFolder(), "config.yml");
@@ -103,7 +103,7 @@ public class KageCloudVelocity implements ICloudNode {
 
 	public void connectToCore() {
 		if(client.isConnected()) {
-			KageCloud.logger.info("Called connectToCore even though the client is already connected?..");
+			KageCloudVel.logger.info("Called connectToCore even though the client is already connected?..");
 
 			return;
 		}
@@ -146,7 +146,7 @@ public class KageCloudVelocity implements ICloudNode {
 
 		getProxy().getEventManager().fireAndForget(new ServerStartedEvent(serverInfo));
 
-		KageCloud.logger.info("Server registered: " + packet.getName() + " (" + connection.getRemoteAddressTCP() + ":" + packet.getPort() + ")");
+		KageCloudVel.logger.info("Server registered: " + packet.getName() + " (" + connection.getRemoteAddressTCP() + ":" + packet.getPort() + ")");
 	}
 
 	public void removeServer(UUID serverId) {
@@ -178,7 +178,7 @@ public class KageCloudVelocity implements ICloudNode {
 		final InputStream defConfigStream = getResource("/config.yml");
 
 		if(defConfigStream == null) {
-			KageCloud.logger.warn("No default config included");
+			KageCloudVel.logger.warn("No default config included");
 
 			return;
 		}
@@ -190,7 +190,7 @@ public class KageCloudVelocity implements ICloudNode {
 		try {
 			getConfig().save(configFile);
 		} catch(IOException ex) {
-			KageCloud.logger.error("Could not save config to " + configFile, ex);
+			KageCloudVel.logger.error("Could not save config to " + configFile, ex);
 		}
 	}
 
@@ -231,10 +231,10 @@ public class KageCloudVelocity implements ICloudNode {
 				out.close();
 				in.close();
 			} else {
-				KageCloud.logger.warn("Could not save " + outFile.getName() + " to " + outFile + " because " + outFile.getName() + " already exists.");
+				KageCloudVel.logger.warn("Could not save " + outFile.getName() + " to " + outFile + " because " + outFile.getName() + " already exists.");
 			}
 		} catch(IOException ex) {
-			KageCloud.logger.error("Could not save " + outFile.getName() + " to " + outFile, ex);
+			KageCloudVel.logger.error("Could not save " + outFile.getName() + " to " + outFile, ex);
 		}
 	}
 
