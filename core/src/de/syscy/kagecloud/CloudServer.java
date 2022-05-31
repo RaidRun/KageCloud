@@ -16,13 +16,14 @@ public class CloudServer implements IConnectionRepresentation, Comparable<CloudS
 
 	private final @Getter String templateName;
 	private final @Getter boolean lobby;
+	private final @Getter UUID id;
 
 	private final @Getter String name;
 	private final @Getter InetSocketAddress address;
 	private final @Getter Map<UUID, CloudPlayer> players = new HashMap<>();
 	private final @Getter boolean restricted;
 
-	public CloudServer(CloudConnection connection, String name, InetSocketAddress address, boolean restricted, String templateName, boolean lobby) { //TODO Should be protected
+	public CloudServer(CloudConnection connection, String name, InetSocketAddress address, boolean restricted, String templateName, boolean lobby, UUID id) { //TODO Should be protected
 		this.connection = connection;
 
 		this.templateName = templateName;
@@ -31,6 +32,7 @@ public class CloudServer implements IConnectionRepresentation, Comparable<CloudS
 		this.name = name;
 		this.address = address;
 		this.restricted = restricted;
+		this.id = id;
 	}
 
 	public boolean canAccess(CloudPlayer player) {
