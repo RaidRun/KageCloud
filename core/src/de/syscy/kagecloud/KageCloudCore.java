@@ -255,13 +255,13 @@ public class KageCloudCore implements ICloudNode {
 
 	public void addServer(CloudCoreConnection connection, RegisterServerPacket packet) {
 		InetSocketAddress serverAddress = new InetSocketAddress(connection.getRemoteAddressTCP().getHostString(), packet.getPort());
-
-		CloudServer server = new CloudServer(connection, packet.getName(), serverAddress, false, packet.getTemplateName(), packet.isLobby());
+		UUID id = packet.getId();
+		CloudServer server = new CloudServer(connection, packet.getName(), serverAddress, false, packet.getTemplateName(), packet.isLobby(),id);
 		connection.setConnectionRepresentation(server);
 
-		startingServers.remove(packet.getId());
+		startingServers.remove(id);
 
-		servers.put(packet.getId(), server);
+		servers.put(id, server);
 
 		for(CloudConnection proxy : bungeeCordProxies.values()) {
 			proxy.sendTCP(new AddServerPacket(server.getConnection().getNodeId(), server.getName(), server.getAddress().getPort(), server.getTemplateName(), server.isLobby()));
